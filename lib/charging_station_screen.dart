@@ -4,6 +4,11 @@ import 'dart:convert';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
+// Note: Add these dependencies to your pubspec.yaml:
+// flutter_map: ^6.1.0
+// latlong2: ^0.8.1
+
+// The 'ChargingStation' class serves as the data model for charging stations.
 class ChargingStation {
   final String name;
   final String address;
@@ -86,7 +91,7 @@ class ChargingStationHomePage extends StatefulWidget {
 
 class _ChargingStationHomePageState extends State<ChargingStationHomePage> {
   // API Key has been added as requested.
-  static const String _apiKey = ' ';
+  static const String _apiKey = 'AIzaSyBYUpIEWXpF3HfZXSQayTKvgfQBqUFUDWI';
 
   String _selectedVehicleCategory = 'Car'; // 'Car' or 'Scooter'
   String _selectedVehicleType = 'Tesla';
@@ -1375,25 +1380,36 @@ class MapViewScreen extends StatelessWidget {
     // Start location marker
     markers.add(
       Marker(
+        width: 60,
+        height: 60,
         point: startLocation,
-        child: Container(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.green,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  'START',
-                  style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.green.withOpacity(0.9),
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Text(
+                'START',
+                style: TextStyle(
+                  color: Colors.white, 
+                  fontSize: 9, 
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              Icon(Icons.location_on, color: Colors.green, size: 30),
-            ],
-          ),
+            ),
+            Icon(Icons.location_on, color: Colors.green, size: 24),
+          ],
         ),
       ),
     );
@@ -1401,25 +1417,36 @@ class MapViewScreen extends StatelessWidget {
     // Destination marker
     markers.add(
       Marker(
+        width: 60,
+        height: 60,
         point: destinationLocation,
-        child: Container(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  'END',
-                  style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.9),
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Text(
+                'END',
+                style: TextStyle(
+                  color: Colors.white, 
+                  fontSize: 9, 
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              Icon(Icons.flag, color: Colors.red, size: 30),
-            ],
-          ),
+            ),
+            Icon(Icons.flag, color: Colors.red, size: 24),
+          ],
         ),
       ),
     );
@@ -1427,41 +1454,51 @@ class MapViewScreen extends StatelessWidget {
     // Charging station markers
     for (var station in chargingStations) {
       if (station.location != null) {
+        final bool isSwap = station.isBatterySwapping;
+        final Color markerColor = station.isRenewablePowered ? Colors.orange : Colors.blue;
+        
         markers.add(
           Marker(
+            width: 60,
+            height: 60,
             point: station.location!,
             child: GestureDetector(
               onTap: () => _showStationInfo(context, station),
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: 2),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: station.isRenewablePowered ? Colors.orange : Colors.blue,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        station.isBatterySwapping ? 'SWAP' : 'CHARGE',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: markerColor.withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 4,
+                          offset: Offset(0, 2),
                         ),
+                      ],
+                    ),
+                    child: Text(
+                      isSwap ? 'SWAP' : 'CHARGE',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Icon(
-                      station.isBatterySwapping ? Icons.swap_horiz : Icons.electric_bolt,
-                      color: station.isRenewablePowered ? Colors.orange : Colors.blue,
-                      size: 25,
-                    ),
-                  ],
-                ),
+                  ),
+                  Icon(
+                    isSwap ? Icons.swap_horiz : Icons.electric_bolt,
+                    color: markerColor,
+                    size: 24,
+                  ),
+                ],
               ),
-            ),),
-          );
+            ),
+          ),
+        );
       }
     }
 
