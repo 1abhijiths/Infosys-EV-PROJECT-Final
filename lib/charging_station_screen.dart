@@ -93,6 +93,7 @@ class _ChargingStationHomePageState extends State<ChargingStationHomePage> {
   // API Key has been added as requested.
   static const String _apiKey = 'AIzaSyBYUpIEWXpF3HfZXSQayTKvgfQBqUFUDWI';
 
+  String _selectedVehicleCategory = 'Car'; // 'Car' or 'Scooter'
   String _selectedVehicleType = 'Tesla';
   String _selectedPriority = 'Fastest Service';
   String _selectedServiceType = 'Both';
@@ -106,11 +107,17 @@ class _ChargingStationHomePageState extends State<ChargingStationHomePage> {
   LatLng? _startLocation;
   LatLng? _destinationLocation;
 
-  final List<String> _vehicleTypes = [
-    'Tesla', 'Nissan Leaf', 'Chevrolet Bolt', 'BMW i3', 'Audi e-tron',
-    'Hyundai Kona Electric', 'Ford Mustang Mach-E', 'Volkswagen ID.4',
-    'NIO ES8', 'NIO ES6', 'Gogoro Scooter', 'Other CCS', 'Other CHAdeMO'
-  ];
+  final Map<String, List<String>> _vehicleTypes = {
+    'Car': [
+      'Tesla', 'Nissan Leaf', 'Chevrolet Bolt', 'BMW i3', 'Audi e-tron',
+      'Hyundai Kona Electric', 'Ford Mustang Mach-E', 'Volkswagen ID.4',
+      'NIO ES8', 'NIO ES6', 'Other CCS', 'Other CHAdeMO'
+    ],
+    'Scooter': [
+      'Gogoro S1', 'Ather 450X', 'Ola S1 Pro', 'TVS iQube',
+      'Bajaj Chetak', 'Hero Vida V1', 'Simple One', 'Other Swappable Battery', 'Other Plug-in Scooter'
+    ]
+  };
 
   final List<String> _priorities = [
     'Fastest Service', 'Shortest Detour', 'Most Amenities', 'Highest Rated',
@@ -492,18 +499,56 @@ class _ChargingStationHomePageState extends State<ChargingStationHomePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Vehicle Type',
+              'Select Vehicle Type',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: RadioListTile<String>(
+                    title: Text('Car'),
+                    value: 'Car',
+                    groupValue: _selectedVehicleCategory,
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedVehicleCategory = value!;
+                        _selectedVehicleType = _vehicleTypes[value]!.first;
+                      });
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: RadioListTile<String>(
+                    title: Text('Scooter'),
+                    value: 'Scooter',
+                    groupValue: _selectedVehicleCategory,
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedVehicleCategory = value!;
+                        _selectedVehicleType = _vehicleTypes[value]!.first;
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 16),
+            Text(
+              'Select Model',
+              style: TextStyle(fontSize: 14, color: Colors.grey[700]),
             ),
             SizedBox(height: 8),
             DropdownButtonFormField<String>(
               value: _selectedVehicleType,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
+                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               ),
-              items: _vehicleTypes.map((type) => DropdownMenuItem(
-                value: type,
-                child: Text(type),
+              items: _vehicleTypes[_selectedVehicleCategory]!.map((type) => 
+                DropdownMenuItem(
+                  value: type,
+                  child: Text(type),
               )).toList(),
               onChanged: (value) {
                 setState(() {
@@ -1069,10 +1114,18 @@ class _ChargingStationHomePageState extends State<ChargingStationHomePage> {
   }
 
   List<ChargingStation> _createMockStations() {
+    // Car charging compatibility
     bool teslaCompatible = _selectedVehicleType == 'Tesla';
-    bool ccsCompatible = _selectedVehicleType != 'Nissan Leaf';
+    bool ccsCompatible = _selectedVehicleType != 'Nissan Leaf' && !_isScooter(_selectedVehicleType);
     bool chademoCompatible = _selectedVehicleType == 'Nissan Leaf' || _selectedVehicleType.contains('CHAdeMO');
     bool nioCompatible = _selectedVehicleType.contains('NIO');
+    
+    // Scooter charging compatibility
+    bool gogoroCompatible = _selectedVehicleType.startsWith('Gogoro');
+    bool atherCompatible = _selectedVehicleType.contains('Ather');
+    bool olaCompatible = _selectedVehicleType.contains('Ola');
+    bool genericScooterCompatible = _selectedVehicleType.contains('Other Swappable') || 
+                                  _selectedVehicleType.contains('Other Plug-in Scooter');
 
     List<ChargingStation> stations = [];
 
@@ -1122,26 +1175,108 @@ class _ChargingStationHomePageState extends State<ChargingStationHomePage> {
     }
 
     if (_selectedServiceType == 'Both' || _selectedServiceType == 'Battery Swapping Only') {
+      // Car battery swap station
+      if (!_isScooter(_selectedVehicleType)) {
+        stations.add(
+          ChargingStation(
+            name: 'NIO Power Swap Station',
+            address: '789 Tech Park Way',
+            distance: 3.0,
+            chargingSpeed: 0,
+            estimatedTime: 5,
+            connectorTypes: [],
+            isCompatible: nioCompatible,
+            rating: 4.6,
+            reviews: 89,
+            isBatterySwapping: true,
+            availableBatteries: 12,
+            compatibleModels: ['NIO ES8', 'NIO ES6'],
+            co2Reduction: 20.0,
+            isRenewablePowered: true,
+            renewableEnergyType: 'Solar',
+            supportsCommunity: true,
+            communityBenefits: 'Workforce development, local partnerships',
+            location: LatLng(17.4000, 78.4900),
+          ),
+        );
+      }
+      
+      // Scooter battery swap stations
+      if (_isScooter(_selectedVehicleType)) {
+        bool gogoroCompatible = _selectedVehicleType.startsWith('Gogoro');
+        bool atherCompatible = _selectedVehicleType.contains('Ather');
+        bool olaCompatible = _selectedVehicleType.contains('Ola');
+        bool genericScooterCompatible = _selectedVehicleType.contains('Other Swappable') || 
+                                      _selectedVehicleType.contains('Other Plug-in');
+        
+        stations.addAll([
+          ChargingStation(
+            name: 'Gogoro GoStation',
+            address: '123 Urban Hub',
+            distance: 0.8,
+            chargingSpeed: 0,
+            estimatedTime: 2,
+            connectorTypes: [],
+            isCompatible: gogoroCompatible || genericScooterCompatible,
+            rating: 4.9,
+            reviews: 156,
+            isBatterySwapping: true,
+            availableBatteries: 24,
+            compatibleModels: ['Gogoro S1', 'Gogoro S2', 'Gogoro Viva'],
+            co2Reduction: 8.5,
+            isRenewablePowered: true,
+            renewableEnergyType: 'Solar',
+            supportsCommunity: true,
+            communityBenefits: 'Urban mobility programs, student discounts',
+            location: LatLng(17.3920, 78.4870),
+          ),
+          ChargingStation(
+            name: 'Ather Grid Swap Station',
+            address: '456 Tech Valley',
+            distance: 1.5,
+            chargingSpeed: 0,
+            estimatedTime: 3,
+            connectorTypes: [],
+            isCompatible: atherCompatible || genericScooterCompatible,
+            rating: 4.7,
+            reviews: 92,
+            isBatterySwapping: true,
+            availableBatteries: 18,
+            compatibleModels: ['Ather 450X', 'Ather 450 Plus'],
+            co2Reduction: 7.2,
+            isRenewablePowered: true,
+            renewableEnergyType: 'Mixed',
+            supportsCommunity: true,
+            communityBenefits: 'Free vehicle health checks, battery recycling program',
+            location: LatLng(17.4050, 78.4780),
+          ),
+        ]);
+      }
+    }
+    
+    // Add scooter charging stations if applicable
+    if (_isScooter(_selectedVehicleType) && 
+        (_selectedServiceType == 'Both' || _selectedServiceType == 'Charging Only')) {
       stations.add(
         ChargingStation(
-          name: 'NIO Power Swap Station',
-          address: '789 Tech Park Way',
-          distance: 3.0,
-          chargingSpeed: 0,
-          estimatedTime: 5,
-          connectorTypes: [],
-          isCompatible: nioCompatible,
-          rating: 4.6,
-          reviews: 89,
-          isBatterySwapping: true,
-          availableBatteries: 12,
-          compatibleModels: ['NIO ES8', 'NIO ES6'],
-          co2Reduction: 20.0,
+          name: 'EV Scooter Hub',
+          address: '321 Green Avenue',
+          distance: 1.0,
+          chargingSpeed: 3.3, // Standard AC charging for scooters
+          estimatedTime: 45,
+          connectorTypes: ['Type 2 AC', 'Standard AC Plugin'],
+          isCompatible: true, // Compatible with all plug-in scooters
+          rating: 4.5,
+          reviews: 78,
+          isBatterySwapping: false,
+          availableBatteries: 0,
+          compatibleModels: ['All Plug-in Scooters'],
+          co2Reduction: 5.8,
           isRenewablePowered: true,
           renewableEnergyType: 'Solar',
           supportsCommunity: true,
-          communityBenefits: 'Workforce development, local partnerships',
-          location: LatLng(17.4000, 78.4900),
+          communityBenefits: 'Covered waiting area, mobile charging facilities',
+          location: LatLng(17.3950, 78.4830),
         ),
       );
     }
@@ -1157,6 +1292,18 @@ class _ChargingStationHomePageState extends State<ChargingStationHomePage> {
         backgroundColor: Colors.redAccent,
       ),
     );
+  }
+
+  bool _isScooter(String vehicleType) {
+    return vehicleType.contains('Gogoro') ||
+           vehicleType.contains('Ather') ||
+           vehicleType.contains('Ola') ||
+           vehicleType.contains('TVS') ||
+           vehicleType.contains('Bajaj') ||
+           vehicleType.contains('Hero') ||
+           vehicleType.contains('Simple One') ||
+           vehicleType.contains('Other Swappable Battery') ||
+           vehicleType.contains('Other Plug-in Scooter');
   }
 }
 
