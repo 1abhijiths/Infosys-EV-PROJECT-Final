@@ -91,7 +91,7 @@ class ChargingStationHomePage extends StatefulWidget {
 
 class _ChargingStationHomePageState extends State<ChargingStationHomePage> {
   // API Key has been added as requested.
-  static const String _apiKey = 'AIzaSyBYUpIEWXpF3HfZXSQayTKvgfQBqUFUDWI';
+  static const String _apiKey = ' ';
 
   String _selectedVehicleCategory = 'Car'; // 'Car' or 'Scooter'
   String _selectedVehicleType = 'Tesla';
