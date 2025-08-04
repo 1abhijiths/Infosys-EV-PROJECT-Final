@@ -4,11 +4,6 @@ import 'dart:convert';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
-// Note: Add these dependencies to your pubspec.yaml:
-// flutter_map: ^6.1.0
-// latlong2: ^0.8.1
-
-// The 'ChargingStation' class serves as the data model for charging stations.
 class ChargingStation {
   final String name;
   final String address;
