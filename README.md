@@ -73,34 +73,29 @@ Detail the potential social, economic, or environmental impact of your solution.
 ⚙️ Technical Implementation
 Technology Stack
 Category	Technologies	Purpose
-🌐 Backend	Node.js (Express)	Manages API requests, user data, station information, and business logic.
+ 
 ⚡ Frontend	Flutter, Material Design	Cross-platform mobile application (iOS/Android) with a clean, responsive UI.
 🗺️ Mapping	Flutter Map, OpenStreetMap	Provides interactive maps, route visualization, and custom station markers.
-📊 Databases	PostgreSQL, Redis	Storing relational data (users, stations, reviews) and caching real-time data (availability).
-
+ 
 Export to Sheets
 System Architecture
 Architecture Overview: Our system is built with a simplified, robust monolithic backend server that is easy to develop, deploy, and maintain for local development.
 
 🖥️ User Interface Layer: A Flutter-based mobile application built with the flutter_map package to render interactive map tiles from OpenStreetMap. It handles user interactions, trip planning inputs, and visualization.
 
-⚡ Backend Server: A monolithic server using Node.js (Express) handles all API requests. It contains the logic for user authentication, CRUD operations for stations and reviews, and geocoding services.
-
+ 
 🧠 Scoring & Routing Engine: A core module within the backend that uses heuristic algorithms to implement the search prioritization logic. It calculates scores for "Fastest Service," "Shortest Detour," "Highest Rated," and "Greenest Energy" based on a weighted combination of station attributes.
 
-💾 Data Storage & Management: PostgreSQL serves as our primary database for persistent data. Redis is used for high-speed caching of station availability and user sessions to ensure a real-time experience.
-
+ 
 🔗 External Integrations: We integrate with the OpenStreetMap Nominatim API for geocoding and various open charging network APIs (e.g., Open Charge Map) for real-time station data.
 
 🚀 Solution Components
 Working Prototype
 🌐 Live Demo: N/A (Local Development Only)
 
-📱 Demo Credentials (if authentication required):
+ 
 
-Username: demouser@ecoroute.app
-
-Password: Sustainable!2025
+ 
 
 Description of Prototype:
 
@@ -110,8 +105,7 @@ Description of Prototype:
 
 ⚡ Performance: The app features lazy loading of station data and efficient list rendering to handle thousands of data points smoothly.
 
-🎥 Demo Video: https://youtube.com/watch?v=demo_video_link (Placeholder)
-
+ 
 Technical Documentation
 Document Type	Description	Link
 🏗️ System Architecture	Detailed technical design of our monolithic server and database schema.	Architecture Doc
@@ -162,7 +156,7 @@ Prerequisites
 
 Flutter SDK (v3.0 or higher)
 
-Node.js (v18.0 or higher)
+ 
 
 Git
 
